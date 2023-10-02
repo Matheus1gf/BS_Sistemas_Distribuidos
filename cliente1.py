@@ -55,6 +55,12 @@ class Client1:
                         # Recebendo a linha e a coluna escolhida pelo jogador
                         linha = int(input(f"Posição do submarino {_ + 1} (linha): "))
                         coluna = int(input(f"Posição do submarino {_ + 1} (coluna): "))
+                        verifica_vitoria = self.client_socket.recv(1024).decode()
+                        
+                        if verifica_vitoria == 'VITORIA2':
+                            print("Jogador 2 afundou todos os seus submarinos.\n Jogo encerrado\n")
+                            time.sleep(5)
+                            sys.exit()
                         # Se a linha e a coluna forem satisfatórias, ele dá um break e sai do while
                         if tabuleiro1.posicionar_submarino(linha, coluna):
                             break

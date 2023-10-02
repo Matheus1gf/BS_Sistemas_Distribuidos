@@ -53,6 +53,11 @@ class Client2:
                 # O loop infinito é quebrado com break, portanto quando encontrada uma condição satisfatória, ele quebra o loop
                 while True:
                     try:
+                        verifica_vitoria = self.client_socket.recv(1024).decode()
+                        if verifica_vitoria == 'VITORIA1':
+                            print("Jogador 1 afundou todos os seus submarinos.\n Jogo encerrado\n")
+                            time.sleep(5)
+                            sys.exit()
                         # Recebendo a linha e a coluna escolhida pelo jogador
                         linha = int(input(f"Posição do submarino {_ + 1} (linha): "))
                         coluna = int(input(f"Posição do submarino {_ + 1} (coluna): "))

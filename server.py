@@ -51,21 +51,31 @@ class Server:
         entre os jogadores, a atualização dos tabuleiros e a detecção do vencedor.
 
         """
+        player1_socket.send('CONTINUE'.encode())
+        player2_socket.send('CONTINUE'.encode())
+        
         sistema_operacional = platform.system() # Obtém o sistema operacional em uso
 
        # Aqui é onde são impressos os tabuleiros
         nome_jogador1 = player1_socket.recv(1024).decode()  # Recebe o nome do jogador 1
+        player1_socket.send('CONTINUE'.encode())
         nome_jogador2 = player2_socket.recv(1024).decode()  # Recebe o nome do jogador 2
+        player2_socket.send('CONTINUE'.encode())
 
         tabuleiro1_serializado = player1_socket.recv(1024).decode()  # Recebe o tabuleiro serializado do jogador 1
+        player1_socket.send('CONTINUE'.encode())
         tabuleiro1_load = json.loads(tabuleiro1_serializado)  # Desserializa o tabuleiro
         tabuleiro1 = Tabuleiro.from_dict(tabuleiro1_load)  # Cria o objeto Tabuleiro do jogador 1 a partir do tabuleiro desserializado
 
         tabuleiro2_serializado = player2_socket.recv(1024).decode()  # Recebe o tabuleiro serializado do jogador 2
         tabuleiro2_load = json.loads(tabuleiro2_serializado)  # Desserializa o tabuleiro
         tabuleiro2 = Tabuleiro.from_dict(tabuleiro2_load)  # Cria o objeto Tabuleiro do jogador 2 a partir do tabuleiro desserializado
+        player2_socket.send('CONTINUE'.encode())
 
         while True:
+            player1_socket.send('CONTINUE'.encode())
+            player2_socket.send('CONTINUE'.encode())
+            
             print(f"{nome_jogador1}'s Tabuleiro:")  # Exibe o tabuleiro do jogador 1
             tabuleiro1.imprimir()  # Imprime o tabuleiro do jogador 1
             print("\n")
@@ -100,11 +110,13 @@ class Server:
 
             if player2_socket.recv(1024).decode() == 'VITORIA2':  # Verifica se o jogador 2 venceu
                 print(f"{nome_jogador2} venceu! {nome_jogador1}'s submarinos foram afundados.")
+                player1_socket.send('VITORIA2'.encode())
                 time.sleep(5)
                 sys.exit()  # Finaliza o programa
 
             if player1_socket.recv(1024).decode() == 'VITORIA1':  # Verifica se o jogador 1 venceu
                 print(f"{nome_jogador1} venceu! {nome_jogador2}'s submarinos foram afundados.")
+                player2_socket.send('VITORIA1'.encode())
                 time.sleep(5)
                 sys.exit()  # Finaliza o programa
 
