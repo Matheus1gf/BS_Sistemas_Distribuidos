@@ -18,6 +18,7 @@ class Client2:
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server_host = '127.0.0.1'  # Endereço IP do servidor
         self.server_port = 12345  # Porta do servidor
+        self.client_socket.settimeout(10)  # Define um timeout de 10 segundos
 
     def connect_to_server(self):
         """
@@ -53,11 +54,6 @@ class Client2:
                 # O loop infinito é quebrado com break, portanto quando encontrada uma condição satisfatória, ele quebra o loop
                 while True:
                     try:
-                        verifica_vitoria = self.client_socket.recv(1024).decode()
-                        if verifica_vitoria == 'VITORIA1':
-                            print("Jogador 1 afundou todos os seus submarinos.\n Jogo encerrado\n")
-                            time.sleep(5)
-                            sys.exit()
                         # Recebendo a linha e a coluna escolhida pelo jogador
                         linha = int(input(f"Posição do submarino {_ + 1} (linha): "))
                         coluna = int(input(f"Posição do submarino {_ + 1} (coluna): "))
@@ -83,16 +79,32 @@ class Client2:
             tabuleiro_adversario = json.loads(tabuleiro_adversario_serializado)  # Desserializa o tabuleiro adversário
             tabuleiro1 = Tabuleiro.from_dict(tabuleiro_adversario)  # Cria o tabuleiro do jogador 1 a partir dos dados recebidos
 
-            while True:
-                # O jogador 2 escolhe o tiro que irá dar
-                jogador2.atirar(tabuleiro1)
 
-                # Caso acerte todos, ele recebe a mensagem de que venceu
-                if jogador2.submarinos_afundados == 3:
-                    print(f"{nome_jogador2} venceu!")
-                    self.client_socket.send("VITORIA2".encode())  # Envia uma mensagem de vitória para o servidor
-                    time.sleep(5)  # Aguarda 5 segundos antes de finalizar o programa
-                    sys.exit()  # Finaliza o programa
+            while True:
+                # O jogador 1 escolhe o tiro que irá dar
+                jogador2.atirar(tabuleiro1)
+                try:
+                    verifica_vitoria = self.client_socket.recv(1024).decode() 
+                    if verifica_vitoria == 'VITORIA_CLIENTE1':
+                        print("Você afundou os submarinos tarde demais, o adversário ganhou!")
+                        self.client_socket.close()  # Fecha a conexão do cliente
+                        sys.exit()  # Finaliza o programa
+                except socket.timeout:
+                    if jogador2.submarinos_afundados == 3:
+                        print(f"{nome_jogador2} venceu!")
+                        self.client_socket.send("VITORIA2".encode())  # Envia a mensagem de vitória para o servidor
+                        time.sleep(5)  # Pausa por 5 segundos
+                        sys.exit()  # Finaliza o programa
+                    continue
+                except:
+                    if jogador2.submarinos_afundados == 3:
+                        print(f"{nome_jogador2} venceu!")
+                        self.client_socket.send("VITORIA2".encode())  # Envia a mensagem de vitória para o servidor
+                        time.sleep(5)  # Pausa por 5 segundos
+                        sys.exit()  # Finaliza o programa
+                    continue
+                
+
 
 if __name__ == "__main__":
     client2 = Client2()
