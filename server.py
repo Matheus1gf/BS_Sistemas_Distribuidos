@@ -98,21 +98,39 @@ class Server:
             else:
                 os.system('clear')  # Limpa a tela do console em sistemas UNIX
 
-            if player2_socket.recv(1024).decode() == 'VITORIA2':  # Verifica se o jogador 2 venceu
-                print(f"{nome_jogador2} venceu! {nome_jogador1}'s submarinos foram afundados.")
-                player1_socket.send('VITORIA_CLIENTE2'.encode()) # Envie uma mensagem de encerramento para o jogador 1
-                time.sleep(5)
-                player1_socket.close()  # Fecha a conexão do jogador 1
-                player2_socket.close()  # Fecha a conexão do jogador 1
-                sys.exit()  # Finaliza o programa
+            while True:
+                vitoria1 = player1_socket.recv(1024).decode()
+                vitoria1_tratada = vitoria1.split(":")
+                vitoria2 = player2_socket.recv(1024).decode()
+                vitoria2_tratada = vitoria2.split(":")
+                print(vitoria1_tratada)
+                print(vitoria2_tratada)
 
-            if player1_socket.recv(1024).decode() == 'VITORIA1':  # Verifica se o jogador 1 venceu
-                print(f"{nome_jogador1} venceu! {nome_jogador2}'s submarinos foram afundados.")
-                player2_socket.send('VITORIA_CLIENTE1'.encode()) # Envie uma mensagem de encerramento para o jogador 2
-                player1_socket.send('VITORIA_CLIENTE1'.encode()) # Envie uma mensagem de encerramento para o jogador 2
-                time.sleep(5)
-                player2_socket.close()  # Fecha a conexão do jogador 2
-                sys.exit()  # Finaliza o programa
+                if len(vitoria1_tratada) == 2 and len(vitoria2_tratada) == 2:
+                    vitoria1_horario, vitoria1_acao = vitoria1_tratada[1], vitoria1_tratada[0]
+                    vitoria2_horario, vitoria2_acao = vitoria2_tratada[1], vitoria2_tratada[0]
+                    print(vitoria1_horario)
+                    print(vitoria1_acao)
+                    print(vitoria2_horario)
+                    print(vitoria2_acao)
+                    if vitoria1_acao == 'VITORIA1' and vitoria1_horario < vitoria2_horario:  # Verifica se o jogador 1 venceu
+                        print(f"{nome_jogador1} venceu! {nome_jogador2}'s submarinos foram afundados.")
+                        player2_socket.send('VITORIA_CLIENTE1'.encode())
+                        player1_socket.send('VITORIA_CLIENTE1'.encode())
+                        time.sleep(5)
+                        player1_socket.close()  # Fecha a conexão do jogador 1
+                        player2_socket.close()  # Fecha a conexão do jogador 2
+                        sys.exit()  # Finaliza o programa
+                    
+                    if vitoria2_acao == 'VITORIA2' and vitoria1_horario > vitoria2_horario:  # Verifica se o jogador 2 venceu
+                        print(f"{nome_jogador2} venceu! {nome_jogador1}'s submarinos foram afundados.")
+                        player2_socket.send('VITORIA_CLIENTE2'.encode())
+                        player1_socket.send('VITORIA_CLIENTE2'.encode())
+                        time.sleep(5)
+                        player2_socket.close()  # Fecha a conexão do jogador 2
+                        player1_socket.close()  # Fecha a conexão do jogador 1
+                        sys.exit()  # Finaliza o programa
+
                 
 
 # Bloco de código que é executado apenas se o script for executado como um programa principal

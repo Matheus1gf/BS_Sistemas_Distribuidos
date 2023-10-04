@@ -89,15 +89,9 @@ class Client1:
                         sys.exit()  # Finaliza o programa
                 except socket.timeout:
                     if jogador1.submarinos_afundados == 3:
-                        print(f"{nome_jogador1} venceu!")
-                        self.client_socket.send("VITORIA1".encode())  # Envia a mensagem de vitória para o servidor
-                        time.sleep(5)  # Pausa por 5 segundos
-                        sys.exit()  # Finaliza o programa
-                    continue
-                except:
-                    if jogador1.submarinos_afundados == 3:
-                        print(f"{nome_jogador1} venceu!")
-                        self.client_socket.send("VITORIA1".encode())  # Envia a mensagem de vitória para o servidor
+                        horario_acao = str(time.time())
+                        mensagem = f"{'VITORIA1'}:{horario_acao}"
+                        self.client_socket.send(mensagem.encode())  # Envia a mensagem de vitória para o servidor
                         time.sleep(5)  # Pausa por 5 segundos
                         sys.exit()  # Finaliza o programa
                     continue
